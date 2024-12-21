@@ -10,7 +10,7 @@ inline constexpr char FONT_PATH[] = "assets/fonts/PressStart2P-Regular.ttf";
 inline constexpr float SHIP_ROTATION_SPEED = 180.0f;  // degrees per second
 inline constexpr float SHIP_ACCELERATION = 300.0f;     // pixels per second^2
 inline constexpr float SHIP_MAX_SPEED = 400.0f;       // pixels per second
-inline constexpr float DRAG_COEFFICIENT = 0.99f;      // velocity multiplier per frame
+inline constexpr float DRAG_COEFFICIENT = 1.00;      // velocity multiplier per frame
 
 // Asteroid settings
 inline constexpr float LARGE_ASTEROID_RADIUS = 40.0f;
