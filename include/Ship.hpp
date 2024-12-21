@@ -82,6 +82,10 @@ public:
             drawThrustFlame(window);
         }
     }
+
+    float getRadius() const { return 20.0f; }  // Approximate ship radius
+    bool isAlive() const { return alive; }
+    void destroy() { alive = false; }
     
 private:
     void wrapPosition() {
@@ -112,4 +116,5 @@ private:
     sf::Vector2f velocity;
     float rotation;
     bool thrusting;
+    bool alive = true;
 };

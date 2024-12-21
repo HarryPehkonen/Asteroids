@@ -24,6 +24,17 @@ public:
         window.draw(shape);
     }
     
+    float getRadius() const {
+        switch (size) {
+            case Size::Large: return LARGE_ASTEROID_RADIUS;
+            case Size::Medium: return MEDIUM_ASTEROID_RADIUS;
+            case Size::Small: return SMALL_ASTEROID_RADIUS;
+        }
+        return 0.0f;  // Should never reach here
+    }
+
+    void setVelocity(const sf::Vector2f& vel) { velocity = vel; }
+
 private:
     void initializeShape() {
         // Get radius based on size
@@ -57,4 +68,5 @@ private:
     
     Size size;
     sf::ConvexShape shape;
+    sf::Vector2f velocity;
 };
