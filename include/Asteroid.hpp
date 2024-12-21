@@ -12,11 +12,22 @@ public:
     
     Asteroid(Size size) : size(size) {
         initializeShape();
+        initializeVelocity();
+        rotationSpeed = generateRandomRotation();
     }
     
     void update(float deltaTime) override {
-        // Currently nothing to update
-        (void)deltaTime; // Silence unused parameter warning
+        // Update position based on velocity
+        position += velocity * deltaTime;
+        
+        // Rotate the asteroid
+        currentRotation += rotationSpeed * deltaTime;
+        shape.setRotation(currentRotation);
+        
+        // Wrap around screen edges
+        wrapPosition();
+        
+        // Update shape position
         shape.setPosition(position);
     }
     
@@ -34,13 +45,13 @@ public:
     }
 
     void setVelocity(const sf::Vector2f& vel) { velocity = vel; }
+    const sf::Vector2f& getVelocity() const { return velocity; }
+    Size getSize() const { return size; }
 
 private:
     void initializeShape() {
         // Get radius based on size
-        float radius = (size == Size::Large) ? LARGE_ASTEROID_RADIUS :
-                      (size == Size::Medium) ? MEDIUM_ASTEROID_RADIUS :
-                                             SMALL_ASTEROID_RADIUS;
+        float radius = getRadius();
         
         // Generate random number of vertices (8-12 for large, 6-9 for medium, 4-6 for small)
         int vertices = (size == Size::Large) ? 8 + (rand() % 5) :
@@ -66,7 +77,50 @@ private:
         shape.setOrigin(0, 0);
     }
     
+    void initializeVelocity() {
+        // Base speed depends on asteroid size
+        float baseSpeed = (size == Size::Large) ? 50.0f :
+                         (size == Size::Medium) ? 75.0f :
+                                                100.0f;
+        
+        // Add some random variation to speed
+        float speedVariation = 0.5f;  // 50% variation
+        float finalSpeed = baseSpeed * (1.0f + (static_cast<float>(rand()) / RAND_MAX - 0.5f) * speedVariation);
+        
+        // Generate random angle
+        float angle = (static_cast<float>(rand()) / RAND_MAX) * 2.0f * M_PI;
+        
+        // Set velocity based on angle and speed
+        velocity = sf::Vector2f(
+            std::cos(angle) * finalSpeed,
+            std::sin(angle) * finalSpeed
+        );
+    }
+    
+    float generateRandomRotation() {
+        // Rotation speed also depends on size (smaller asteroids rotate faster)
+        float baseRotation = (size == Size::Large) ? 30.0f :
+                            (size == Size::Medium) ? 45.0f :
+                                                   60.0f;
+        
+        // Add random variation and randomly choose direction
+        float variation = 0.5f;  // 50% variation
+        float finalRotation = baseRotation * (1.0f + (static_cast<float>(rand()) / RAND_MAX - 0.5f) * variation);
+        
+        // Randomly choose rotation direction
+        return (rand() % 2 == 0) ? finalRotation : -finalRotation;
+    }
+    
+    void wrapPosition() {
+        if (position.x < 0) position.x = WINDOW_WIDTH;
+        if (position.x > WINDOW_WIDTH) position.x = 0;
+        if (position.y < 0) position.y = WINDOW_HEIGHT;
+        if (position.y > WINDOW_HEIGHT) position.y = 0;
+    }
+    
     Size size;
     sf::ConvexShape shape;
     sf::Vector2f velocity;
+    float rotationSpeed;        // Degrees per second
+    float currentRotation = 0;  // Current rotation in degrees
 };
