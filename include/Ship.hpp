@@ -3,7 +3,8 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include "GameObject.hpp"
-#include "Vector2D.hpp"
+#include "GameObjectManager.hpp"
+#include "Bullet.hpp"
 #include "Constants.hpp"
 
 class Ship : public GameObject {
@@ -24,22 +25,64 @@ public:
         shape.setOrigin(0, 0);
         
         // Initialize movement properties
-        velocity = sf::Vector2f(0.0f, 0.0f);
         rotation = 0.0f;
         thrusting = false;
     }
     
     void update(float deltaTime) override {
-        // Handle rotation
+        handleRotation(deltaTime);
+        handleThrust(deltaTime);
+        handleShooting();
+        
+        // Update position based on velocity
+        position += velocity * deltaTime;
+        wrapPosition(WINDOW_WIDTH, WINDOW_HEIGHT);
+        
+        // Update shape position and rotation
+        shape.setPosition(position);
+        shape.setRotation(rotation);
+        
+        // Update bullets and remove expired ones
+        bulletManager.update(deltaTime);
+        
+        // Remove expired or off-screen bullets
+        bulletManager.removeIf([](const Bullet& bullet) {
+            return bullet.hasExpired() || bullet.isOffScreen();
+        });
+    }
+    
+    void draw(sf::RenderWindow& window) override {
+        // Draw the ship
+        window.draw(shape);
+        
+        // Draw thrust flame when thrusting
+        if (thrusting) {
+            drawThrustFlame(window);
+        }
+        
+        // Draw all bullets
+        bulletManager.draw(window);
+    }
+    
+    float getRadius() const { return 20.0f; }
+    
+    // Bullet manager access
+    const GameObjectManager<Bullet>& getBulletManager() const { return bulletManager; }
+    GameObjectManager<Bullet>& getBulletManager() { return bulletManager; }
+
+private:
+    void handleRotation(float deltaTime) {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::J)) {
             rotation -= SHIP_ROTATION_SPEED * deltaTime;
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::L)) {
             rotation += SHIP_ROTATION_SPEED * deltaTime;
         }
-        
-        // Handle thrust
+    }
+    
+    void handleThrust(float deltaTime) {
         thrusting = sf::Keyboard::isKeyPressed(sf::Keyboard::K);
+        
         if (thrusting) {
             // Convert rotation to radians for calculating direction
             float rotationRad = rotation * M_PI / 180.0f;
@@ -62,37 +105,33 @@ public:
         
         // Apply drag
         velocity *= DRAG_COEFFICIENT;
-        
-        // Update position
-        position += velocity * deltaTime;
-        
-        // Wrap around screen edges
-        wrapPosition();
-        
-        // Update shape
-        shape.setPosition(position);
-        shape.setRotation(rotation);
     }
     
-    void draw(sf::RenderWindow& window) override {
-        window.draw(shape);
+    void handleShooting() {
+        static bool wasSpacePressed = false;
+        bool isSpacePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
         
-        // Draw thrust flame when thrusting
-        if (thrusting) {
-            drawThrustFlame(window);
+        // Only shoot on initial key press, not hold
+        if (isSpacePressed && !wasSpacePressed) {
+            fireBullet();
         }
+        
+        wasSpacePressed = isSpacePressed;
     }
-
-    float getRadius() const { return 20.0f; }  // Approximate ship radius
-    bool isAlive() const { return alive; }
-    void destroy() { alive = false; }
     
-private:
-    void wrapPosition() {
-        if (position.x < 0) position.x = WINDOW_WIDTH;
-        if (position.x > WINDOW_WIDTH) position.x = 0;
-        if (position.y < 0) position.y = WINDOW_HEIGHT;
-        if (position.y > WINDOW_HEIGHT) position.y = 0;
+    void fireBullet() {
+        if (bulletManager.count() >= MAX_BULLETS) return;
+        
+        // Calculate bullet start position (at ship's nose)
+        float rotationRad = rotation * M_PI / 180.0f;
+        sf::Vector2f bulletPos = position + sf::Vector2f(
+            std::sin(rotationRad) * 20.0f,  // 20 pixels from center (ship height)
+            -std::cos(rotationRad) * 20.0f
+        );
+        
+        // Create and spawn new bullet
+        auto bullet = std::make_unique<Bullet>(bulletPos, rotation);
+        bulletManager.spawn(std::move(bullet));
     }
     
     void drawThrustFlame(sf::RenderWindow& window) {
@@ -113,8 +152,9 @@ private:
     }
     
     sf::ConvexShape shape;
-    sf::Vector2f velocity;
     float rotation;
     bool thrusting;
-    bool alive = true;
+    
+    // Bullet management using double buffer system
+    GameObjectManager<Bullet> bulletManager;
 };

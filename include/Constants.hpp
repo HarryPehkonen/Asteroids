@@ -22,3 +22,8 @@ inline constexpr int INITIAL_ASTEROID_COUNT = 4;
 inline constexpr int POINTS_LARGE_ASTEROID = 20;
 inline constexpr int POINTS_MEDIUM_ASTEROID = 50;
 inline constexpr int POINTS_SMALL_ASTEROID = 100;
+
+inline constexpr int MAX_BULLETS = 5;
+
+#define _USE_MATH_DEFINES  // Must be before including cmath
+#include <cmath> // M_PI
