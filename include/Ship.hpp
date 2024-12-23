@@ -10,11 +10,14 @@
 class Ship : public GameObject {
 public:
     Ship() {
+
+        float scale = SHIP_SCALE;
+
         // Create the ship shape
         shape.setPointCount(3);
-        shape.setPoint(0, sf::Vector2f(0, -20));     // Top point
-        shape.setPoint(1, sf::Vector2f(-15, 20));    // Bottom left
-        shape.setPoint(2, sf::Vector2f(15, 20));     // Bottom right
+        shape.setPoint(0, sf::Vector2f(0.0f * scale, -20.0f * scale));     // Top point
+        shape.setPoint(1, sf::Vector2f(-15.0f * scale, 20.0f * scale));    // Bottom left
+        shape.setPoint(2, sf::Vector2f(15.0f * scale, 20.0f * scale));     // Bottom right
         
         // Set initial properties
         shape.setFillColor(sf::Color::Transparent);
@@ -64,7 +67,7 @@ public:
         bulletManager.draw(window);
     }
     
-    float getRadius() const { return 20.0f; }
+    float getRadius() const { return 20.0f * SHIP_SCALE; }
     
     // Bullet manager access
     const GameObjectManager<Bullet>& getBulletManager() const { return bulletManager; }
@@ -137,11 +140,12 @@ private:
     void drawThrustFlame(sf::RenderWindow& window) {
         sf::ConvexShape flame;
         flame.setPointCount(3);
+        float scale = SHIP_SCALE;
         
         // Calculate flame points relative to ship's back
-        flame.setPoint(0, sf::Vector2f(-8, 22));    // Left point
-        flame.setPoint(1, sf::Vector2f(8, 22));     // Right point
-        flame.setPoint(2, sf::Vector2f(0, 35));     // Bottom point
+        flame.setPoint(0, sf::Vector2f(-8.0f * scale, 22.0f * scale));    // Left point
+        flame.setPoint(1, sf::Vector2f(8.0f * scale, 22.0f * scale));     // Right point
+        flame.setPoint(2, sf::Vector2f(0.0f * scale, 35.0f * scale));     // Bottom point
         
         flame.setFillColor(sf::Color::Yellow);
         flame.setOrigin(0, 0);

@@ -37,9 +37,9 @@ public:
     // Get the collision radius based on asteroid size
     float getRadius() const {
         switch (size) {
-            case Size::Large: return LARGE_ASTEROID_RADIUS;
-            case Size::Medium: return MEDIUM_ASTEROID_RADIUS;
-            case Size::Small: return SMALL_ASTEROID_RADIUS;
+            case Size::Large: return LARGE_ASTEROID_RADIUS * ASTEROID_SCALE;
+            case Size::Medium: return MEDIUM_ASTEROID_RADIUS * ASTEROID_SCALE;
+            case Size::Small: return SMALL_ASTEROID_RADIUS * ASTEROID_SCALE;
         }
         return 0.0f;  // Should never reach here
     }
@@ -50,6 +50,7 @@ private:
     void generateShape() {
         // Get radius based on size
         float radius = getRadius();
+        float scale = ASTEROID_SCALE;
         
         // Generate random number of vertices based on size
         int minVertices = (size == Size::Small) ? 6 : (size == Size::Medium) ? 8 : 10;
@@ -65,8 +66,8 @@ private:
             // Add some randomness to the radius (between 80% and 120% of base radius)
             float radiusVariation = radius * (0.8f + (static_cast<float>(rand()) / RAND_MAX) * 0.4f);
             
-            float x = std::cos(angle) * radiusVariation;
-            float y = std::sin(angle) * radiusVariation;
+            float x = std::cos(angle) * radiusVariation * scale;
+            float y = std::sin(angle) * radiusVariation * scale;
             
             shape.setPoint(i, sf::Vector2f(x, y));
         }

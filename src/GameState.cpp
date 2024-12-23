@@ -3,6 +3,7 @@
 #include <cmath>
 #include <random>
 #include "DebugUtils.hpp"
+#include "Constants.hpp"
 
 GameState::GameState() {
     if (!font.loadFromFile(FONT_PATH)) {
@@ -25,7 +26,7 @@ void GameState::reset() {
 void GameState::createInitialAsteroids() {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> speedDist(100.0f, 200.0f);
+    std::uniform_real_distribution<float> speedDist(ASTEROID_MIN_SPEED, ASTEROID_MAX_SPEED);
     std::uniform_real_distribution<float> angleDist(0, 2 * M_PI);
     
     for (int i = 0; i < INITIAL_ASTEROID_COUNT; ++i) {
