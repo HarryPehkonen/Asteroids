@@ -18,7 +18,7 @@ public:
         debugText.setCharacterSize(24);
         debugText.setFillColor(sf::Color::White);
         debugText.setPosition(10.f, 10.f);
-        debugText.setString("Press Esc to exit");
+        // debugText.setString("Press Esc to exit");
 
         // Initialize game state
         gameState = std::make_unique<GameState>();

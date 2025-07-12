@@ -66,6 +66,11 @@ void GameState::update(float deltaTime) {
         return;
     }
 
+    if (asteroidManager.count() == 0) {
+        handleWin();
+        reset();
+    }
+
     ship->update(deltaTime);
     asteroidManager.update(deltaTime);
     checkCollisions();
@@ -161,7 +166,7 @@ void GameState::draw(sf::RenderWindow& window) {
     
     if (isGameOver() && !font.getInfo().family.empty()) {
         sf::Text gameOverText;
-        gameOverText.setFont(font);
+   gameOverText.setFont(font);
         gameOverText.setCharacterSize(32);
         gameOverText.setFillColor(sf::Color::White);
         gameOverText.setString("Game Over!\nPress R to restart");
@@ -172,9 +177,29 @@ void GameState::draw(sf::RenderWindow& window) {
         
         window.draw(gameOverText);
     }
+
+    if (isGameWon() && !font.getInfo().family.empty()) {
+        sf::Text winText;
+        winText.setFont(font);
+        winText.setCharacterSize(32);
+        winText.setFillColor(sf::Color::White);
+        winText.setString("You win!\nPress R to restart");
+
+        sf::FloatRect bounds = winText.getLocalBounds();
+        winText.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+        winText.setPosition(WINDOW_WIDTH / 2.f, WINDOW_HEIGHT / 2.f);
+
+        window.draw(winText);
+    }
 }
 
 void GameState::handleGameOver() {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+        reset();
+    }
+}
+
+void GameState::handleWin() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
         reset();
     }

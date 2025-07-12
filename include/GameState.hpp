@@ -19,6 +19,7 @@ public:
     void reset();
     
     bool isGameOver() const { return !ship.has_value(); }
+    bool isGameWon() const { return !isGameOver() && asteroidManager.count() == 0; }
     int getScore() const { return score; }
     size_t getAsteroidCount() const { return asteroidManager.count(); }
     
@@ -39,5 +40,6 @@ private:
     void checkCollisions();
     void spawnSmallerAsteroids(const Asteroid& original);
     void handleGameOver();
+    void handleWin();
     int getAsteroidPoints(Asteroid::Size size) const;
 };
